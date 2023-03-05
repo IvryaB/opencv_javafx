@@ -29,6 +29,7 @@ public class HelloController {
     @FXML
     public TextField cameraIdField;
 
+    // WORKING VARS //
     // a timer for acquiring the video stream
     private ScheduledExecutorService timer;
 
@@ -39,8 +40,8 @@ public class HelloController {
     private boolean cameraActive = false;
 
     // the id of the camera to be used
-    // 0 - first camera, 1 - second
-    private int cameraId = 1;
+    // 0 - first camera, 1 - second, etc.
+    private int cameraId = 0;
 
     // fps displayed
     private final int cameraFPS = 10;
@@ -48,10 +49,11 @@ public class HelloController {
     // grab a frame every X ms
     private final int waitMs = 1000 / cameraFPS;
 
-    // displaying in gray tones or not
-    private boolean isGrayTones = true;
+    // SETTINGS //
+    // displaying in gray tones
+    private boolean isGrayTones = false;
 
-    // flip image horizontally
+    // flip image vertically
     private boolean flipY = true;
 
     // flip image horizontally
