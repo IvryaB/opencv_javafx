@@ -21,12 +21,9 @@ public final class Utils
      */
     public static Image mat2Image(Mat frame)
     {
-        try
-        {
+        try {
             return SwingFXUtils.toFXImage(matToBufferedImage(frame), null);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.err.println("Cannot convert the Mat obejct: " + e);
             return null;
         }
@@ -41,30 +38,28 @@ public final class Utils
      * @param value
      *            the value to set for the given {@link ObjectProperty}
      */
-    public static <T> void onFXThread(final ObjectProperty<T> property, final T value)
-    {
-        Platform.runLater(() -> {
-            property.set(value);
-        });
+    public static <T> void onFXThread(final ObjectProperty<T> property, final T value) {
+        Platform.runLater(() -> property.set(value));
     }
 
-    private static BufferedImage matToBufferedImage(Mat original)
-    {
+    private static BufferedImage matToBufferedImage(Mat original) {
         // init
-        BufferedImage image = null;
-        int width = original.width(), height = original.height(), channels = original.channels();
+        BufferedImage image;
+        int width = original.width();
+        int height = original.height();
+        int channels = original.channels();
+
         byte[] sourcePixels = new byte[width * height * channels];
         original.get(0, 0, sourcePixels);
 
-        if (original.channels() > 1)
-        {
-            image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        }
-        else
-        {
-            image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        }
-        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        image = new BufferedImage(width, height,
+                channels > 1 ? BufferedImage.TYPE_3BYTE_BGR : BufferedImage.TYPE_BYTE_GRAY);
+
+        DataBufferByte bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
+        final byte[] targetPixels = bufferByte.getData();
+
+        // coping source array to target's array
+        // simply, transforms Mat to BufferedImage for ImageView
         System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
 
         return image;
