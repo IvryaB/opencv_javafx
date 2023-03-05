@@ -1,10 +1,12 @@
 package com.example.opencv_javafx;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 import javafx.embed.swing.SwingFXUtils;
 import org.opencv.core.Mat;
+import java.awt.geom.AffineTransform;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -19,10 +21,16 @@ public final class Utils
      *            the {@link Mat} representing the current frame
      * @return the {@link Image} to show
      */
-    public static Image mat2Image(Mat frame)
-    {
+    public static Image mat2Image(Mat frame, boolean flipY, boolean flipX) {
         try {
-            return SwingFXUtils.toFXImage(matToBufferedImage(frame), null);
+            BufferedImage image = matToBufferedImage(frame);
+            if (flipY) {
+                image = createFlippedV(image);
+            }
+            if (flipX) {
+                image = createFlippedH(image);
+            }
+            return SwingFXUtils.toFXImage(image, null);
         } catch (Exception e) {
             System.err.println("Cannot convert the Mat obejct: " + e);
             return null;
@@ -63,5 +71,28 @@ public final class Utils
         System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
 
         return image;
+    }
+
+    private static BufferedImage createFlippedV(BufferedImage image) {
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(-1, 1));
+        at.concatenate(AffineTransform.getTranslateInstance(-image.getWidth(), 0));
+        return createTransformed(image, at);
+    }
+
+    private static BufferedImage createFlippedH(BufferedImage image) {
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
+        return createTransformed(image, at);
+    }
+
+    private static BufferedImage createTransformed(BufferedImage image, AffineTransform at) {
+        BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
     }
 }

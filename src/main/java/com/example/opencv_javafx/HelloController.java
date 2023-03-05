@@ -42,14 +42,20 @@ public class HelloController {
     // 0 - first camera, 1 - second
     private int cameraId = 1;
 
-    // grab a frame every 33 ms (30 frames/sec)
-    private final int cameraFPS = 60;
+    // fps displayed
+    private final int cameraFPS = 10;
 
-    // grab a frame every 33 ms (30 frames/sec)
+    // grab a frame every X ms
     private final int waitMs = 1000 / cameraFPS;
 
     // displaying in gray tones or not
     private boolean isGrayTones = true;
+
+    // flip image horizontally
+    private boolean flipY = true;
+
+    // flip image horizontally
+    private boolean flipX = false;
 
     @FXML
     public void startCamera(ActionEvent actionEvent) {
@@ -64,7 +70,7 @@ public class HelloController {
                     // effectively grab and process a single frame
                     Mat frame = grabFrame();
                     // convert and show the frame
-                    Image imageToShow = Utils.mat2Image(frame);
+                    Image imageToShow = Utils.mat2Image(frame, flipY, flipX);
                     updateImageView(currentFrame, imageToShow);
                 };
 
@@ -159,14 +165,12 @@ public class HelloController {
         try {
             String cameraIdStr = cameraIdField.getText();
             int newCameraId = Integer.parseInt(cameraIdStr);
-
-            if (cameraId != newCameraId) {
+            if (cameraActive && cameraId != newCameraId) {
                 cameraId = newCameraId;
-                if (cameraActive) {
-                    restartCamera();
-                } else {
-                    startCamera();
-                }
+                restartCamera();
+            }
+            if (!cameraActive) {
+                startCamera();
             }
         } catch (Exception e) {
             cameraIdField.setText("Wrong camera ID input");
